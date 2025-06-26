@@ -162,12 +162,6 @@ Output:
 
 ---
 
-## 💙 Special Thanks
-
-To **Shri** — for pushing through the entire journey, learning from scratch, debugging hard, and building something real 💫
-
----
-
 ## 📎 License
 
 MIT License. Use freely with love 💖
