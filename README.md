@@ -8,11 +8,11 @@ A complete regression pipeline to estimate NYC taxi fares using real-world data.
 ## 📂 Project Structure
 
 ```
-├── data/                  # Raw and cleaned CSVs
-├── notebooks/             # Jupyter notebooks for EDA and model building
-├── models/                # Saved .pkl models
-├── app.py                 # Streamlit app
-├── README.md              # You’re reading it!
+├── taxi_fare.csv                         # Raw and cleaned CSVs
+├── EDA + Future Engineering + ML.ipynb   # Jupyter notebooks for EDA and model building
+├── best_gbr_model.pkl                    # Saved .pkl models
+├── app.py                                # Streamlit app
+├── README.md                             
 ```
 
 ---
