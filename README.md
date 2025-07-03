@@ -151,15 +151,6 @@ Pickup Day: Friday
 Output:
 💸 Estimated Fare: $17.36
 ```
-
----
-
-## 📌 Future Improvements
-
-- Add map-based pickup & dropoff inputs
-- Support surge pricing scenarios
-- Deploy via Hugging Face or AWS
-
 ---
 
 ## 📎 License
