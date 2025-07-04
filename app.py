@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import pickle
 import time
+import datetime
 
 # Load the trained model
 with open("best_gbr_model.pkl", "rb") as file:
@@ -13,8 +14,23 @@ st.markdown("<h1 style='text-align: center;'>🚕 TripFare Predictor</h1>", unsa
 st.markdown("<p style='text-align: center;'>Estimate your taxi fare instantly 💸</p>", unsafe_allow_html=True)
 st.markdown("---")
 
-# ---------------------- 📥 Input Section ----------------------
+# ---------------------- 📅 Quick Day Selector ----------------------
+weekday_list = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+today = datetime.datetime.today().weekday()
+tomorrow = (today + 1) % 7
 
+st.markdown("#### 🗓️ Quick Selector")
+quick_day = st.radio(
+    "",  # no label
+    ["📍 Today", "📆 Tomorrow"],
+    horizontal=True,
+    label_visibility="collapsed"
+)
+
+# Select actual day string
+selected_day = weekday_list[today] if quick_day == "📍 Today" else weekday_list[tomorrow]
+
+# ---------------------- 📥 Input Section ----------------------
 with st.form("fare_form"):
     st.subheader("📋 Trip Details")
 
@@ -25,7 +41,7 @@ with st.form("fare_form"):
 
     with col2:
         pickup_hour = st.slider("Pickup Hour (0–23)", 0, 23, 12)
-        pickup_day = st.selectbox("Pickup Day", ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+        pickup_day = st.selectbox("Pickup Day", weekday_list, index=weekday_list.index(selected_day))
 
     col3, col4 = st.columns(2)
     with col3:
@@ -43,11 +59,10 @@ with st.form("fare_form"):
                'Friday': 4, 'Saturday': 5, 'Sunday': 6}
     pickup_day_encoded = day_map[pickup_day]
 
-    # Predict Button
+    # Submit button
     submitted = st.form_submit_button("🎯 Predict Fare")
 
 # ---------------------- 💸 Prediction Output ----------------------
-
 if submitted:
     with st.spinner('⏳ Predicting fare... please wait...'):
         progress = st.progress(0)
@@ -62,21 +77,35 @@ if submitted:
     prediction = model.predict(input_data)[0]
 
     st.markdown(
-    f"""
-    <div style='
-        background-color: #f9f9f9;
-        padding: 1.2rem;
-        border-radius: 12px;
-        border: 2px dashed #ffd700;
-        text-align: center;
-        font-size: 1.6rem;
-        font-weight: 600;
-        color: #2c2c2c;
-        margin-top: 20px;'
-    >
-    💰 Your Estimated Fare: <span style='color:#27ae60;'>${round(prediction, 2)}</span>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+        f"""
+        <div style='
+            background-color: #f9f9f9;
+            padding: 1.2rem;
+            border-radius: 12px;
+            border: 2px dashed #ffd700;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #2c2c2c;
+            margin-top: 20px;'
+        >
+        💰 Your Estimated Fare: <span style='color:#27ae60;'>${round(prediction, 2)}</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
+    # 2016 NYC Rules
+    base = 2.50
+    dist_rate = 1.61  # Approx per km
+    dist_fare = trip_distance * dist_rate
+    mta = 0.50
+    improve = 0.30
+    night = 0.50 if is_night else 0.0
+    rush = 1.00 if (pickup_hour in range(16, 20) and pickup_day not in ['Saturday', 'Sunday']) else 0.0
+    total_2016 = base + dist_fare + mta + improve + night + rush
+
+    st.markdown(
+        f"<p style='font-size:0.85rem; color:#888; margin-top: 8px;'>⚠️ Note: This fare estimate is based on <b>2016 NYC Taxi pricing rules</b>. Charges like congestion surcharges introduced after 2019 are not included.</p>",
+        unsafe_allow_html=True
+    )
